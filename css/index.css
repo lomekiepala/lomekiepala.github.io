@@ -1,0 +1,95 @@
+h1,
+h2,
+h3,
+h4,
+body {
+	margin: 0;
+}
+
+main {
+	display: flex;
+	flex-direction: row;
+}
+
+#map {
+	width: 100%;
+	height: 99vh;
+}
+
+#sidebar {
+	min-width: 15em;
+}
+
+.filtre_column {
+	display: flex;
+	flex-direction: column;
+	border: 1px solid black;
+	border-radius: 0.3em;
+	max-height: 20em;
+	overflow: scroll;
+	padding: 0.3em;
+	margin: 0.2em;
+}
+
+.filtre_column>div {
+	display: flex;
+	flex-direction: column;
+}
+
+#loading {
+	/* display:none; */
+	position: absolute;
+	width: 100%;
+	height: 100vh;
+	z-index: 10000;
+	background-color: hsl(0 0% 0% /70%);
+
+	div {
+		width: 100%;
+		height: 100%;
+		display: flex;
+		flex-direction: row;
+		justify-content: center;
+		align-items: center;
+
+		p {
+			width: 20em;
+			font-size: 3.5em;
+			text-align: center;
+			position: absolute;
+			font-family: sans;
+			color: white;
+			text-shadow: -2px -2px 0 #000, 2px -2px 0 #000, -2px 2px 0 #000, 2px 2px 0 #000;
+		}
+	}
+}
+
+#kroko {
+	animation: 3s linear 0s infinite fliip;
+
+	img {
+		width: 20em;
+	}
+}
+
+@keyframes fliip {
+	from {
+		/* pushes the sun down past the viewport */
+		transform:
+			/*rotate(360deg)*/
+			scale(-1, 1);
+	}
+
+	50% {
+		transform:
+			/*rotate(180deg)*/
+			scale(1, 1);
+	}
+
+	to {
+		/* returns the sun to its default position */
+		transform: scale(-1, 1)
+			/*rotate(0deg)*/
+		;
+	}
+}
