@@ -77,19 +77,23 @@ main {
 		/* pushes the sun down past the viewport */
 		transform:
 			/*rotate(360deg)*/
-			scale(-1, 1);
+			/* scale(-1, 1); */
+			scale(1, 1);
 	}
 
 	50% {
 		transform:
 			/*rotate(180deg)*/
-			scale(1, 1);
+			scale(-1, 1);
+		/* scale(1, 1); */
 	}
 
 	to {
 		/* returns the sun to its default position */
-		transform: scale(-1, 1)
-			/*rotate(0deg)*/
+		transform:
+			/* scale(-1, 1) */
+			scale(1, 1);
+		/*rotate(0deg)*/
 		;
 	}
 }

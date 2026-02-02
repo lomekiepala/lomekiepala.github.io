@@ -11,5 +11,8 @@ function setDep(dep) {
 function getDepValue() {
   return depdrop.value;
 }
+function getCountAll() {
+  return count_all.checked;
+}
 
-export { setDep, getDepValue };
+export { setDep, getDepValue, getCountAll };

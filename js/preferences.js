@@ -1,4 +1,4 @@
-import { getDepValue } from "./departements.js";
+import { getCountAll, getDepValue } from "./departements.js";
 import { map } from "./map.js";
 
 function isSavedPreference(obj) {
@@ -9,7 +9,8 @@ function isSavedPreference(obj) {
     typeof obj.long === "number" &&
     typeof obj.zoom === "number" &&
     typeof obj.dep === "string" &&
-    obj.dep.length > 0
+    obj.dep.length > 0 &&
+    typeof obj.countAll === "boolean"
   );
 }
 const prefKeys = "mapview";
@@ -18,6 +19,7 @@ const defaultValue = {
   long: 6,
   zoom: 9,
   dep: "54",
+  countAll: true,
 };
 
 function getSavedPreferences() {
@@ -42,8 +44,9 @@ setInterval(() => {
     lat: map.getCenter().lat,
     long: map.getCenter().lng,
     dep: getDepValue(),
+    countAll: getCountAll(),
   };
   savePreference(newPref);
-}, 5000);
+}, 3000);
 
 export { getSavedPreferences };

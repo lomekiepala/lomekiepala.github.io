@@ -3,23 +3,35 @@ import {
   recheExplFiltresChanges,
   naturesFiltresChanges,
   hasScanChanged,
+  hasCountAllChanged,
 } from "./filtres.js";
 import { isLoading } from "./state.js";
 import { getSavedPreferences } from "./preferences.js";
 import { setDep } from "./departements.js";
+import { BenchMarker } from "./bench.js";
 let points = [];
 
 let selectableRechExpl = [];
 let selectableNatures = [];
 let communes = [];
 
-let selectedNatures = [];
-let selectedRechExpl = [];
-let selectedHasScan = false;
+let selectedNatures, selectedRechExpl, selectedHasScan, search;
+let countAll = false;
+//real default values in resetFiltres()
+resetFiltres();
+function changeSearch(value) {
+  search = value;
+  filtrePoints();
+}
 
 function changeHasScan(hs) {
   selectedHasScan = hs === true;
   filtrePoints();
+}
+
+function changeCountAll(ca) {
+  countAll = ca === true;
+  countPointsFiltres();
 }
 
 function addSelectedRechExpl(id, isChecked) {
@@ -40,20 +52,30 @@ function addSelectedNatures(id, isChecked) {
 
 async function initPoints() {
   let savedPref = getSavedPreferences();
+  countAll = savedPref.countAll;
 
   isLoading(true);
+  const bench = new BenchMarker("initPoints");
 
   await fetchFiltres();
+  bench.markNow("fetchFiltres");
   await fetchPointsDep(savedPref.dep);
+  bench.finish("fetchPointsDep");
 
   isLoading(false);
 }
 
 async function decompressResToJson(res) {
+  const bench = new BenchMarker("DecompressResToJson", true);
   let blob = await res.blob();
+  bench.markNow("blob");
   let streamin = blob.stream().pipeThrough(new DecompressionStream("gzip"));
+  bench.markNow("streamin");
   let blobout = await new Response(streamin).blob();
-  return JSON.parse(await blobout.text());
+  bench.markNow("blobout");
+  const json = JSON.parse(await blobout.text());
+  bench.finish("json");
+  return json;
 }
 
 function filtreListToObjectList(filtre) {
@@ -87,10 +109,14 @@ async function fetchFiltres() {
   updateFiltres();
 }
 
+/**
+ * Default values
+ */
 function resetFiltres() {
   selectedNatures = [];
   selectedRechExpl = [];
   selectedHasScan = false;
+  search = "";
 }
 
 async function changeDep(newDep) {
@@ -101,7 +127,9 @@ async function changeDep(newDep) {
 }
 
 async function fetchPointsDep(dep = 54) {
+  const bench = new BenchMarker("fetchPointsDep");
   let res = await fetch(`./static/${dep}.json.gzip`);
+  bench.markNow("fetch");
 
   if (!res.ok) {
     console.error("res not ok " + res.status);
@@ -110,28 +138,51 @@ async function fetchPointsDep(dep = 54) {
 
   setDep(dep);
   let data = await decompressResToJson(res);
+  bench.markNow("decompressResToJson");
 
   points = data;
   console.log(`Fetch points ok, ${points.length} points`);
 
   let countPromise = countPointsFiltres();
   filtrePoints();
+  bench.markNow("filtresPoints");
   await countPromise;
+  bench.finish("countPointsFiltres");
 }
 async function countPointsFiltres() {
+  let bench = new BenchMarker("CountPointsFiltres", true);
   selectableRechExpl.forEach((v) => (v.count = 0));
   communes.forEach((v) => (v.count = 0));
   selectableNatures.forEach((v) => (v.count = 0));
 
-  Array.from({ length: points.length / nbField }, (_, i) => {
-    let ib = i * nbField;
-    points[ib + rechexpl].forEach((i) => {
-      selectableRechExpl.find((v) => v.id === i).count++;
-    });
-    selectableNatures.find((v) => v.id === points[ib + nature]).count++;
-    communes.find((v) => v.id === points[ib + commune]).count++;
-  });
+  for (let re of selectableRechExpl) {
+    for (let i = 0; i < points.length / nbField; i++) {
+      let ib = i * nbField;
+      for (let pre of points[ib + rechexpl]) {
+        if (pre === re.id) {
+          re.count++;
+          if (!countAll) break;
+        }
+      }
+      if (re.count > 0 && !countAll) {
+        break;
+      }
+    }
+  }
+  bench.markNow("Recherche exploit");
+
+  for (let nat of selectableNatures) {
+    for (let i = 0; i < points.length / nbField; i++) {
+      let ib = i * nbField;
+      if (points[ib + nature] == nat.id) {
+        nat.count++;
+        if (!countAll) break;
+      }
+    }
+  }
+  bench.markNow("Natures");
   updateFiltres();
+  bench.finish("updateFiltres");
 }
 
 const nbField = 8;
@@ -146,9 +197,15 @@ const nature = 6;
 const rechexpl = 7;
 
 function filtrePoints() {
+  const regexSearch = new RegExp(
+    search.normalize("NFD").replace(/[\u0300-\u036f]/g, ""),
+    "i",
+  );
   updatePointsViews(
     Array.from({ length: points.length / nbField }, (_, i) => {
       let ib = i * nbField;
+      // .normalize('NFD')
+      //     .replace(/[\u0300-\u036f]/g, '')
 
       if (
         !(
@@ -156,7 +213,16 @@ function filtrePoints() {
             selectedNatures.includes(points[ib + nature])) &&
           (selectedRechExpl.length == 0 ||
             points[ib + rechexpl].some((e) => selectedRechExpl.includes(e))) &&
-          (!selectedHasScan || points[ib + nbScan] > 0)
+          (!selectedHasScan || points[ib + nbScan] > 0) &&
+          (search.length == 0 ||
+            points[ib + lieudit]
+              .normalize("NFD")
+              .replace(/[\u0300-\u036f]/g, "")
+              .match(regexSearch) !== null ||
+            communes[points[ib + commune]].name
+              .normalize("NFD")
+              .replace(/[\u0300-\u036f]/g, "")
+              .match(regexSearch) !== null)
         )
       )
         return null;
@@ -190,6 +256,7 @@ function updateFiltres() {
   recheExplFiltresChanges(selectableRechExpl);
   naturesFiltresChanges(selectableNatures);
   hasScanChanged(selectedHasScan);
+  hasCountAllChanged(countAll);
 }
 
 export {
@@ -203,4 +270,6 @@ export {
   addSelectedNatures,
   changeDep,
   changeHasScan,
+  changeSearch,
+  changeCountAll,
 };

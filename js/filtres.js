@@ -4,8 +4,10 @@ import {
   selectedRechExpl,
   filtrePoints,
   changeHasScan,
+  changeCountAll,
   addSelectedRechExpl,
   addSelectedNatures,
+  changeSearch,
 } from "./PointsModel.js";
 
 const recheExplFiltresChanges = (newRechExpl) => {
@@ -31,9 +33,27 @@ const naturesFiltresChanges = (newNatures) => {
 function hasScanChanged(hs) {
   has_scan.checked = hs === true;
 }
+function hasCountAllChanged(ca) {
+  count_all.checked = ca === true;
+}
+function hasSearchChanged(value) {
+  search_bar.value = value;
+}
 
 has_scan.addEventListener("change", (e) => {
   changeHasScan(e.target.checked);
+});
+
+count_all.addEventListener("change", (e) => {
+  changeCountAll(e.target.checked);
+});
+search_bar.addEventListener("keydown", (e) => {
+  if (e.key === "Enter") {
+    changeSearch(search_bar.value);
+  }
+});
+search_btn.addEventListener("click", () => {
+  changeSearch(search_bar.value);
 });
 
 /**
@@ -53,10 +73,15 @@ function changeFilter(htmlNode, labelList, callback) {
     });
     let label = document.createElement("label");
     label.for = check.id;
-    label.innerText = cur.name + ` (${cur.count})`;
+    label.innerText = cur.name + (cur.count > 1 ? ` (${cur.count})` : "");
     label.prepend(check);
     htmlNode.append(label);
   });
 }
 
-export { recheExplFiltresChanges, naturesFiltresChanges, hasScanChanged };
+export {
+  recheExplFiltresChanges,
+  naturesFiltresChanges,
+  hasScanChanged,
+  hasCountAllChanged,
+};
