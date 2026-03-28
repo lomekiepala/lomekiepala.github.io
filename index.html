@@ -20,7 +20,7 @@
 	<script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster-src.js">
 	</script>
 
-	<script src="./static/index.js" type="module">
+	<script src="./static/generated/index.js" type="module">
 	</script>
 
 
@@ -163,6 +163,7 @@
 		    <h3>
 			Recherche et exploitation
 		    </h3>
+		    <button id="inv_rechexpl">Inverser selection</button>
 		    <div id="filtres_rechexpl">
 
 		    </div>
@@ -171,6 +172,7 @@
 		    <h3>
 			Natures
 		    </h3>
+		    <button id="inv_natures">Inverser selection</button>
 		    <div id="filtres_natures">
 
 		    </div>
@@ -179,7 +181,11 @@
 
 	    </div>
 
+	    <div id="popup" display="none">
+		Copied to clipboard
+	    </div>
 	    <div id="map"></div>
+	    <!-- </div> -->
 	</main>
     </body>
 </html>

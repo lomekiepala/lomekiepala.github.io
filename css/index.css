@@ -36,6 +36,18 @@ main {
 	flex-direction: column;
 }
 
+#popup {
+	position: absolute;
+	z-index: 10000;
+	border: 1px solid black;
+	border-radius: 0.3em;
+	background-color: hsl(0 0% 70%);
+	padding: 0.1em;
+	margin: 0.4em;
+	animation-duration: 0.3s;
+	box-shadow: 0.2em 0.2em 0.2em black;
+}
+
 #loading {
 	/* display:none; */
 	position: absolute;
@@ -96,4 +108,15 @@ main {
 		/*rotate(0deg)*/
 		;
 	}
+}
+
+button {
+	width: fit-content;
+}
+
+.sharebtn {
+	text-decoration: underline;
+	color: blue;
+	cursor: pointer;
+
 }

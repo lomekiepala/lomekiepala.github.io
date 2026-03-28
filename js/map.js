@@ -26,7 +26,7 @@ const overlayMaps = {
 
 const cluster = L.markerClusterGroup({
   chunkedLoading: true,
-  maxClusterRadius: 60,
+  maxClusterRadius: 50,
 });
 
 let savedPref = getSavedPreferences();
@@ -74,6 +74,18 @@ L.control.filtres = function (opts) {
 };
 
 L.control.filtres({}).addTo(map);
+// const imageurl = "static/rang.png";
+//
+// var latLngBounds = L.latLngBounds([
+//   [49.3167971239095, 6.031761127403131],
+//   [49.29520282944616, 6.069532251484862],
+// ]);
+//
+// var imageOverlay = L.imageOverlay(imageurl, latLngBounds, {
+//   opacity: 0.8,
+//   interactive: true,
+//   className: "rotationeImage",
+// }).addTo(map);
 
 const moreLayer = L.control.layers(null, overlayMaps).addTo(map);
 

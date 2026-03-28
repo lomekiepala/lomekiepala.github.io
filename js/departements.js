@@ -1,4 +1,5 @@
 import { changeDep } from "./PointsModel.js";
+import { pushNewOptions } from "./queryParams.js";
 
 depdrop.addEventListener("change", (e) => {
   changeDep(e.target.value);
@@ -6,6 +7,7 @@ depdrop.addEventListener("change", (e) => {
 
 function setDep(dep) {
   depdrop.value = dep;
+  pushNewOptions("dep", dep);
 }
 
 function getDepValue() {

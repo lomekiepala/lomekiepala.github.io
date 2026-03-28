@@ -1,6 +1,8 @@
 import {
   selectedHasScan,
   selectedNatures,
+    inverseNaturesFilters,
+    inverseRechExplFilters,
   selectedRechExpl,
   filtrePoints,
   changeHasScan,
@@ -21,6 +23,7 @@ const recheExplFiltresChanges = (newRechExpl) => {
 };
 
 const naturesFiltresChanges = (newNatures) => {
+    console.log("natures filtres ",newNatures[0])
   changeFilter(
     filtres_natures,
     newNatures
@@ -55,6 +58,12 @@ search_bar.addEventListener("keydown", (e) => {
 search_btn.addEventListener("click", () => {
   changeSearch(search_bar.value);
 });
+inv_rechexpl.addEventListener("click", ()=>{
+    inverseRechExplFilters()
+});
+inv_natures.addEventListener("click", ()=>{
+    inverseNaturesFilters()
+});
 
 /**
  * callback
@@ -68,6 +77,7 @@ function changeFilter(htmlNode, labelList, callback) {
     check.type = "checkbox";
     check.id = nodeId + "" + cur.id;
     check.value = cur.id;
+	check.checked = cur.checked === true;
     check.addEventListener("change", (e) => {
       callback(cur.id, e.target.checked);
     });

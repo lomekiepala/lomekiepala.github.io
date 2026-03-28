@@ -13,4 +13,13 @@ function isLoading(isLoading) {
     loading.style.display = "none";
   }
 }
+popup.style.display = "none";
+window.showPopup = function () {
+  popup.style.display = "block";
+
+  setTimeout(() => {
+    popup.style.display = "none";
+  }, 5000);
+};
+
 export { isLoading };

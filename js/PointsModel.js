@@ -50,8 +50,7 @@ function addSelectedNatures(id, isChecked) {
   filtrePoints();
 }
 
-async function initPoints() {
-  let savedPref = getSavedPreferences();
+async function initPoints(savedPref, onLoadingFinished) {
   countAll = savedPref.countAll;
 
   isLoading(true);
@@ -61,6 +60,8 @@ async function initPoints() {
   bench.markNow("fetchFiltres");
   await fetchPointsDep(savedPref.dep);
   bench.finish("fetchPointsDep");
+
+  onLoadingFinished();
 
   isLoading(false);
 }
@@ -259,10 +260,49 @@ function updateFiltres() {
   hasCountAllChanged(countAll);
 }
 
+function inverseRechExplFilters() {
+  console.log(
+    "inversRechExplfiltres selected natures: ",
+    selectedRechExpl.length,
+  );
+  selectableRechExpl = selectableRechExpl.map((n) => {
+    n.checked = selectedRechExpl.find((sid) => sid == n.id) == undefined;
+    return n;
+  });
+  selectedRechExpl = selectableRechExpl
+    .filter((n) => n.checked)
+    .map((n) => n.id);
+  recheExplFiltresChanges(selectableRechExpl);
+  console.log(
+    "inversRechExplfiltres selected natures après inverse: ",
+    selectedRechExpl.length,
+  );
+  filtrePoints();
+}
+function inverseNaturesFilters() {
+  console.log(
+    "inversNaturesfiltres selected natures: ",
+    selectedNatures.length,
+  );
+  selectableNatures = selectableNatures.map((n) => {
+    n.checked = selectedNatures.find((sid) => sid == n.id) == undefined;
+    return n;
+  });
+  selectedNatures = selectableNatures.filter((n) => n.checked).map((n) => n.id);
+  naturesFiltresChanges(selectableNatures);
+  console.log(
+    "inversNaturesfiltres selected natures après inverse: ",
+    selectedNatures.length,
+  );
+  filtrePoints();
+}
+
 export {
   initPoints,
   fetchPointsDep,
   filtrePoints,
+  inverseNaturesFilters,
+  inverseRechExplFilters,
   selectedNatures,
   selectedRechExpl,
   selectedHasScan,
