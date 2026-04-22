@@ -23,7 +23,9 @@ const overlayMaps = {
     "https://data.geopf.fr/tms/1.0.0/ORTHOIMAGERY.ORTHOPHOTOS.1950-1965/{z}/{x}/{y}.png",
   ),
 };
-
+// <TileMap title="MNH issu de LiDAR HD" srs="EPSG:3857" profile="none" extension="png" href="https://data.geopf.fr/tms/1.0.0/IGNF_LIDAR-HD_MNH_ELEVATION.ELEVATIONGRIDCOVERAGE.SHADOW"/>
+// <TileMap title="MNS issu de LiDAR HD" srs="EPSG:3857" profile="none" extension="png" href="https://data.geopf.fr/tms/1.0.0/IGNF_LIDAR-HD_MNS_ELEVATION.ELEVATIONGRIDCOVERAGE.SHADOW"/>
+// <TileMap title="MNT issu de LiDAR HD" srs="EPSG:3857" profile="none" extension="png" href="https://data.geopf.fr/tms/1.0.0/IGNF_LIDAR-HD_MNT_ELEVATION.ELEVATIONGRIDCOVERAGE.SHADOW"/>
 const cluster = L.markerClusterGroup({
   chunkedLoading: true,
   maxClusterRadius: 50,
@@ -41,6 +43,8 @@ L.Control.Filtres = L.Control.extend({
     position: "topleft",
   },
   onAdd: function (map) {
+    let btndiv = L.DomUtil.create("div");
+    btndiv.id = "left-control";
     let btnFiltres = L.DomUtil.create("button");
     btnFiltres.id = "hide-filtre";
     L.DomEvent.on(
@@ -50,18 +54,27 @@ L.Control.Filtres = L.Control.extend({
       (e) => {
         console.log("hide", sidebar.style.display, e);
         if (sidebar.style.display === "none") {
-          e.target.innerText = "Cache";
+          e.target.innerText = "Cacher";
           sidebar.style.display = "block";
         } else {
-          e.target.innerText = "Montre";
+          e.target.innerText = "Montrer";
           sidebar.style.display = "none";
         }
         map.invalidateSize();
       },
     );
-    btnFiltres.innerText = "Cache";
+    btnFiltres.innerText = "Cacher";
+    btndiv.appendChild(btnFiltres);
+    // let geolocbtn = L.DomUtil.create("button");
+    // geolocbtn.id = "hide-filtre";
+    // L.DomEvent.on(geolocbtn, "click", (e) => {
+    //   console.log("geoloc");
+    //   map.locate({ watch: true, enableHighAccuracy: true });
+    // });
+    // geolocbtn.innerText = "GeoLoc";
+    // btndiv.appendChild(geolocbtn);
 
-    return btnFiltres;
+    return btndiv;
   },
 
   onRemove: function (map) {
@@ -88,5 +101,4 @@ L.control.filtres({}).addTo(map);
 // }).addTo(map);
 
 const moreLayer = L.control.layers(null, overlayMaps).addTo(map);
-
-export { map, cluster };
+export { map, cluster, moreLayer, overlayMaps };

@@ -1,5 +1,6 @@
 import { getCountAll, getDepValue } from "./departements.js";
 import { map } from "./map.js";
+import { getSelectedLayers } from "./moreLayers.js";
 
 function isSavedPreference(obj) {
   return (
@@ -9,6 +10,7 @@ function isSavedPreference(obj) {
     typeof obj.long === "number" &&
     typeof obj.zoom === "number" &&
     typeof obj.dep === "string" &&
+    typeof obj.layers === "object" &&
     obj.dep.length > 0 &&
     typeof obj.countAll === "boolean"
   );
@@ -20,6 +22,7 @@ const defaultValue = {
   zoom: 9,
   dep: "54",
   countAll: true,
+  layers: [],
 };
 
 function getSavedPreferences() {
@@ -45,6 +48,7 @@ setInterval(() => {
     long: map.getCenter().lng,
     dep: getDepValue(),
     countAll: getCountAll(),
+    layers: getSelectedLayers(),
   };
   savePreference(newPref);
 }, 3000);
