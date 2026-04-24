@@ -84,11 +84,16 @@ function getSelectedLayers() {
 
 function addAdditionalLayer(title, link) {
   additionalLayers[title] = { tileLayer: L.tileLayer(link), link: link };
+  // console.log(
+  //   "addAdditionalLayer",
+  //   additionalLayers[title].tileLayer.setZIndex,
+  // );
+
   moreLayer.addOverlay(additionalLayers[title].tileLayer, title);
 }
 
 function removeAdditionalLayer(title) {
-  moreLayer.removeLayer(additionalLayers[title].tileLayer);
+  moreLayer.removeLayer(additionalLayers[title].tileLayer.remove());
   delete additionalLayers[title];
 }
 

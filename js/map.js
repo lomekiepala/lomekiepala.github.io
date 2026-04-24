@@ -100,5 +100,98 @@ L.control.filtres({}).addTo(map);
 //   className: "rotationeImage",
 // }).addTo(map);
 
-const moreLayer = L.control.layers(null, overlayMaps).addTo(map);
+L.Control.Layers.include({
+  _addItem: function (obj) {
+    var label = document.createElement("label"),
+      checked = this._map.hasLayer(obj.layer),
+      input;
+    var ctrlDiv = document.createElement("div");
+    ctrlDiv.appendChild(label);
+
+    if (obj.overlay) {
+      input = document.createElement("input");
+      input.type = "checkbox";
+      input.className = "leaflet-control-layers-selector";
+      input.defaultChecked = checked;
+    } else {
+      input = this._createRadioElement(
+        "leaflet-base-layers_" + L.Util.stamp(this),
+        checked,
+      );
+    }
+
+    this._layerControlInputs.push(input);
+    input.layerId = L.Util.stamp(obj.layer);
+
+    L.DomEvent.on(input, "click", this._onInputClick, this);
+
+    var name = document.createElement("span");
+    name.innerHTML = " " + obj.name;
+
+    // Helps from preventing layer control flicker when checkboxes are disabled
+    // https://github.com/Leaflet/Leaflet/issues/2771
+    var holder = document.createElement("span");
+
+    label.appendChild(holder);
+    holder.appendChild(input);
+    holder.appendChild(name);
+    holder.setAttribute("class", "layer-control-holder");
+
+    if (obj.overlay) {
+      let upAndDown = document.createElement("span");
+      upAndDown.setAttribute("class", "up-and-down");
+      let up = document.createElement("button");
+      up.innerText = "^";
+      up.class = "layer-up";
+      let down = document.createElement("button");
+      down.innerText = "v";
+      down.class = "layer-down";
+      upAndDown.appendChild(up);
+      upAndDown.appendChild(down);
+      up.layerId = L.Util.stamp(obj.layer);
+      down.layerId = L.Util.stamp(obj.layer);
+      let onLevelClick = (e) => {
+        console.log("level", e.target.class);
+        let zdiff = e.target.class == "layer-up" ? 1 : -1;
+        let layer = this._getLayer(e.target.layerId);
+        console.log(layer.layer);
+        layer.layer.setZIndex(layer.layer.options.zIndex + zdiff);
+      };
+      L.DomEvent.on(down, "click", onLevelClick, null);
+      L.DomEvent.on(up, "click", onLevelClick, null);
+      holder.appendChild(upAndDown);
+
+      let slidar = document.createElement("input");
+      slidar.type = "range";
+      slidar.min = "0";
+      slidar.max = "100";
+      slidar.value = "100";
+      slidar.layerId = L.Util.stamp(obj.layer);
+      slidar.setAttribute("class", "opacity-slidar");
+      L.DomEvent.on(
+        slidar,
+        "change",
+        (s) => {
+          console.log("opacityChange: ", this._getLayer(s.target.layerId).name);
+          this._getLayer(s.target.layerId).layer.setOpacity(
+            s.target.value / 100,
+          );
+        },
+        null,
+      );
+      ctrlDiv.appendChild(slidar);
+    }
+
+    var container = obj.overlay ? this._overlaysList : this._baseLayersList;
+    container.appendChild(ctrlDiv);
+
+    this._checkDisabledLayers();
+    return ctrlDiv;
+  },
+});
+
+const moreLayer = L.control
+  .layers(null, overlayMaps, { autoZIndex: false })
+  .addTo(map);
+
 export { map, cluster, moreLayer, overlayMaps };

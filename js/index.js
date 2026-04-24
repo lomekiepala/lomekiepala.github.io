@@ -8,7 +8,6 @@ import { init as initLayers } from "./moreLayers.js";
 
 function init() {
   const params = getQueryParams();
-  overlayMaps["Photographies aériennes"].setOpacity(0.4);
   let savedPref = getSavedPreferences();
   if (params.dep != undefined) {
     savedPref.dep = params.dep;
