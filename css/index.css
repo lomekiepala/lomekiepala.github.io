@@ -35,6 +35,17 @@ main {
 	display: flex;
 	flex-direction: column;
 }
+#title_row{
+	flex-direction: row;
+}
+#close_button{
+	width: 1.5em;
+	height: 1.5em;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+}
+
 
 #popup {
 	position: absolute;
