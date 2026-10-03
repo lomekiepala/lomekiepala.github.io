@@ -1,6 +1,7 @@
 import { getDepValue } from "./departements.js";
 import { map, cluster } from "./map.js";
 import { getOrigin, pushNewOptions } from "./queryParams.js";
+import {getCopyBtn} from "./helper.js";
 
 let markers = {};
 
@@ -39,7 +40,8 @@ let updatePointsView = (points) => {
               ) +
               undef(
                 p.id,
-                `<span class="sharebtn" onclick="navigator.clipboard.writeText('${url}?dep=${dep}&bssid=${p.id}');showPopup()">Partager</span> <br>`,
+                getCopyBtn(`${url}?dep=${dep}&bssid=${p.id}`,'Partager')
+                // `<span class="sharebtn" onclick="navigator.clipboard.writeText('${url}?dep=${dep}&bssid=${p.id}');showPopup()">Partager</span> <br>`,
               ),
           )),
     ),

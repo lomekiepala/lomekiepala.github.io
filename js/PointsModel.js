@@ -202,6 +202,10 @@ function filtrePoints() {
     search.normalize("NFD").replace(/[\u0300-\u036f]/g, ""),
     "i",
   );
+  // let ret = []
+  // for(let i = 0; i < points.length / nbField; i++){
+  //
+  // }
   updatePointsViews(
     Array.from({ length: points.length / nbField }, (_, i) => {
       let ib = i * nbField;
@@ -246,8 +250,11 @@ function filtrePoints() {
 }
 
 function updatePointsViews(pointsUpdate) {
+  const bench = new BenchMarker("updatePointsView");
   updatePointsView(pointsUpdate);
+  bench.markNow("updatePoints");
   updateNbPoints(points.length / nbField, pointsUpdate.length);
+  bench.finish("updateNbPoints");
 
   // throw new Error("A faire update points");
 }

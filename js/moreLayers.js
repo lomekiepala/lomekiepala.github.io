@@ -3,7 +3,7 @@ import { getSavedPreferences } from "./preferences";
 
 let additionalLayers = {};
 const xmlLink = "https://data.geopf.fr/tms/1.0.0";
-
+let has_fetched = false;
 async function fetchMoreMaps() {
   try {
     const res = await fetch(xmlLink);
@@ -47,7 +47,20 @@ async function fetchMoreMaps() {
 function gettmsLink(link, extension) {
   return `${link}/{z}/{x}/{y}.${extension}`;
 }
-
+const staticallyAvailableUponClickLayers = [
+  {
+    title:"Lidar Luxembourg",
+    link :'https://wms.geoportail.lu/public_map_layers/service?',
+    type :'wms',
+    opt  :{ 
+      uppercase:true,
+      layers: '2978', 
+      'CRS': "EPSG:3857", 
+      format: "image/png", 
+      transparent: true, 
+    },
+  }
+];
 let availableLayers = [];
 function replaceLayers(newLayers) {
   more_maps.innerHTML = "";
@@ -59,12 +72,12 @@ function replaceLayers(newLayers) {
     check.checked = additionalLayers[l.title] != undefined;
     check.addEventListener("change", (e) => {
       // console.log(e.target.value, e.target.checked);
-      let title = e.target.title;
-      let link = e.target.value;
+      // let title = e.target.title;
+      // let link = e.target.value;
       if (e.target.checked) {
-        addAdditionalLayer(title, link);
+        addAdditionalLayer(l.title, l.link, l.opt ?? {}, l.type ?? "tile" );
       } else {
-        removeAdditionalLayer(title);
+        removeAdditionalLayer(l.title);
       }
     });
     let label = document.createElement("label");
@@ -77,19 +90,22 @@ function replaceLayers(newLayers) {
 function getSelectedLayers() {
   let ret = {};
   for (let title in additionalLayers) {
-    ret[title] = additionalLayers[title].link;
+    ret[title] = additionalLayers[title];
+    delete ret[title].tileLayer;
   }
   return ret;
 }
 
-function addAdditionalLayer(title, link) {
-  additionalLayers[title] = { tileLayer: L.tileLayer(link), link: link };
+function addAdditionalLayer(title, link, layerOpt = {}, type= "tile") {
+  additionalLayers[title] = { tileLayer: type == "wms" ? L.tileLayer.wms(link,layerOpt) : L.tileLayer(link,layerOpt), link: link , opt: layerOpt,type:type};
   // console.log(
   //   "addAdditionalLayer",
   //   additionalLayers[title].tileLayer.setZIndex,
   // );
 
   moreLayer.addOverlay(additionalLayers[title].tileLayer, title);
+  console.log("Add layer, layers : ")
+  console.log(additionalLayers);
 }
 
 function removeAdditionalLayer(title) {
@@ -97,18 +113,25 @@ function removeAdditionalLayer(title) {
   delete additionalLayers[title];
 }
 
+async function fetchAndReplaceMoreLayers(){
+  has_fetched = true;
+    const layers = await fetchMoreMaps();
+    availableLayers = layers.concat(staticallyAvailableUponClickLayers);
+    replaceLayers(layers);
+}
+
 async function init() {
   let pref = getSavedPreferences();
   for (let title in pref.layers) {
-    addAdditionalLayer(title, pref.layers[title]);
+    if(pref.layers[title].link == undefined){
+      continue;
+    }
+    addAdditionalLayer(title, pref.layers[title].link,pref.layers[title].opt,pref.layers[title].type);
   }
-
-  fetch_more_maps_btn.addEventListener("click", async () => {
-    const layers = await fetchMoreMaps();
-    availableLayers = layers;
-    replaceLayers(layers);
-  });
-  layers_search_bar.addEventListener("keyup", (e) => {
+  layers_search_bar.addEventListener("keyup", async (e) => {
+    if(!has_fetched){
+      await fetchAndReplaceMoreLayers();
+    }
     const regexSearch = new RegExp(
       e.target.value.normalize("NFD").replace(/[\u0300-\u036f]/g, ""),
       "i",
@@ -126,5 +149,5 @@ async function init() {
   });
 }
 
-console.log(moreLayer);
+// console.log(moreLayer);
 export { init, getSelectedLayers };
